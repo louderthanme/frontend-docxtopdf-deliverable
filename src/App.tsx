@@ -1,12 +1,13 @@
-import { Box, VStack, Button, Input } from '@chakra-ui/react';
-import { useRef, useState, FormEvent } from 'react';
+import { Box, VStack, Button, Input, HStack } from "@chakra-ui/react";
+import { useRef, useState, FormEvent } from "react";
 
 function App() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isFileSelected, setIsFileSelected] = useState(false);
+  const [fileName, setFileName] = useState<string>("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleButtonClick = () => {
-    // This only triggers the file dialog
     inputRef.current?.click();
   };
 
@@ -16,7 +17,20 @@ function App() {
     // Here you would handle uploading the file
     setTimeout(() => {
       setIsLoading(false);
+      setIsFileSelected(false);
+      setFileName("");
     }, 2000);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      setIsFileSelected(true);
+      setFileName(files[0].name);
+    } else {
+      setIsFileSelected(false);
+      setFileName("");
+    }
   };
 
   return (
@@ -28,9 +42,29 @@ function App() {
     >
       <form onSubmit={handleSubmit}>
         <VStack spacing={4} align="stretch">
-          <Button onClick={handleButtonClick} colorScheme="blue">Choose File</Button>
-          <Input type="file" ref={inputRef} hidden onChange={(e) => console.log(e.target.files)} />
-          <Button type="submit" colorScheme="blue" isLoading={isLoading} loadingText="Uploading...">
+          <HStack>
+            <Button onClick={handleButtonClick} colorScheme="teal">
+              Choose File
+            </Button>
+            {isFileSelected ? (
+              <Box bg='limegreen' p={2} color='white' borderRadius="md"> {`${fileName}`} Selected</Box>
+            ) : (
+              <Box bg='tomato' p={2} color='white' borderRadius='sm'>No File Selected</Box>
+            )}
+            <Input
+              type="file"
+              ref={inputRef}
+              hidden
+              onChange={handleFileChange}
+            />
+          </HStack>
+
+          <Button
+            type="submit"
+            colorScheme="purple"
+            isLoading={isLoading}
+            loadingText="Uploading..."
+          >
             Upload Document
           </Button>
         </VStack>
