@@ -1,13 +1,19 @@
-import { FormEvent, useState } from "react";
-import { Box, VStack, Button, Input } from "@chakra-ui/react";
+import { Box, VStack, Button, Input } from '@chakra-ui/react';
+import { useRef, useState, FormEvent } from 'react';
 
 function App() {
   const [isLoading, setIsLoading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleButtonClick = () => {
+    // This only triggers the file dialog
+    inputRef.current?.click();
+  };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Uploading...");
     setIsLoading(true);
+    // Here you would handle uploading the file
     setTimeout(() => {
       setIsLoading(false);
     }, 2000);
@@ -20,19 +26,15 @@ function App() {
       alignItems="center"
       justifyContent="center"
     >
-      <VStack spacing={4}>
-        <form onSubmit={handleSubmit}>
-          <Input type="file" />
-          <Button
-            type="submit"
-            colorScheme="blue"
-            isLoading={isLoading}
-            loadingText="Uploading..."
-          >
+      <form onSubmit={handleSubmit}>
+        <VStack spacing={4} align="stretch">
+          <Button onClick={handleButtonClick} colorScheme="blue">Choose File</Button>
+          <Input type="file" ref={inputRef} hidden onChange={(e) => console.log(e.target.files)} />
+          <Button type="submit" colorScheme="blue" isLoading={isLoading} loadingText="Uploading...">
             Upload Document
           </Button>
-        </form>
-      </VStack>
+        </VStack>
+      </form>
     </Box>
   );
 }
