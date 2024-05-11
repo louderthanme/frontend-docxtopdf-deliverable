@@ -4,6 +4,7 @@ import { useRef, useState, FormEvent } from "react";
 function App() {
   const [isConverting, setIsConverting] = useState(false);
   const [isDownloaded, setIsDownloaded] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const [fileName, setFileName] = useState<string>("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -13,6 +14,11 @@ function App() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (errorMessage){
+      return;
+    }
+
+
     setIsDownloaded(false); // Reset on new submission
     const file = inputRef.current?.files?.[0];
     const formData = new FormData();
@@ -30,6 +36,8 @@ function App() {
         }
       );
       if (!response.ok) throw new Error("Couldn't upload file");
+      setIsDownloaded(true)
+      setErrorMessage("");
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -51,7 +59,15 @@ function App() {
     setIsDownloaded(false); // Reset on new file selection
     const files = e.target.files;
     if (files && files.length > 0) {
-      setFileName(files[0].name);
+      const file = files[0];
+      const fileExtension = file.name.split(".").pop();
+      if (fileExtension !== "docx" && fileExtension !== "doc") {
+        setErrorMessage('Only .doc or .docx files please.')
+      } else {
+        setErrorMessage("");
+      }
+      setFileName(file.name);
+      setIsDownloaded(false);
     }
   };
 
@@ -70,8 +86,12 @@ function App() {
               <Button onClick={handleButtonClick} colorScheme="teal">
                 Choose File
               </Button>
-              {fileName ? (
+              {fileName && !errorMessage ? (
                 <Box bg="limegreen" p={2} color="white" borderRadius="md">
+                  {`${fileName}`} Selected
+                </Box>
+              ) : errorMessage ? (
+                <Box bg="gray.200" border="2px solid" borderColor='red.500' p={2}  borderRadius="md">
                   {`${fileName}`} Selected
                 </Box>
               ) : (
@@ -91,11 +111,17 @@ function App() {
                 File downloaded. Check your downloads.
               </Box>
             )}
+            {errorMessage && (
+              <Box bg="red.500" p={2} color="white" borderRadius="sm" textAlign='center'>
+                {errorMessage}
+              </Box>
+            )}
             <Button
               type="submit"
               colorScheme="purple"
               isLoading={isConverting}
               loadingText="Converting..."
+              isDisabled={!!errorMessage}
             >
               Convert File
             </Button>
