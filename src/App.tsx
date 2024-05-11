@@ -1,35 +1,40 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { FormEvent, useState } from "react";
+import { Box, VStack, Button, Input } from "@chakra-ui/react";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log("Uploading...");
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Box
+      minH="100vh"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+    >
+      <VStack spacing={4}>
+        <form onSubmit={handleSubmit}>
+          <Input type="file" />
+          <Button
+            type="submit"
+            colorScheme="blue"
+            isLoading={isLoading}
+            loadingText="Uploading..."
+          >
+            Upload Document
+          </Button>
+        </form>
+      </VStack>
+    </Box>
+  );
 }
 
-export default App
+export default App;
